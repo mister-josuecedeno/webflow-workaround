@@ -100,7 +100,9 @@
 
       gtag('config', 'G-5B5P2LKGEN');
     </script>
-
+    <script>
+      window.alert('Connected');
+    </script>
     <script async="" src="https://static.userback.io/widget/v1.js"></script>
     <link
       rel="stylesheet"
@@ -169,8 +171,8 @@
         text-transform: inherit;
         list-style-type: disc;
         text-shadow: none;
-        font-smooth: auto;
-        /* vertical-align: baseline; */
+        font-smoothing: auto;
+        vertical-align: baseline;
         cursor: inherit;
         white-space: inherit;
         word-break: normal;
@@ -923,7 +925,6 @@ also rich-text.less has its own sprite-sheet */
         background: none !important;
         line-height: inherit !important;
         -webkit-user-select: auto !important;
-        user-select: auto !important;
         -webkit-box-shadow: none !important;
         box-shadow: none !important;
       }
@@ -1218,7 +1219,6 @@ also rich-text.less has its own sprite-sheet */
         background: none !important;
         line-height: inherit !important;
         -webkit-user-select: auto !important;
-        user-select: auto !important;
         -webkit-box-shadow: none !important;
         box-shadow: none !important;
       }
@@ -1340,8 +1340,8 @@ also rich-text.less has its own sprite-sheet */
         opacity: 0.5;
         background-color: #fafafa;
       }
-      /* .w-codemirror { */
-      /**
+      .w-codemirror {
+        /**
   Copied from CodeMirror v5.40.0
   https://github.com/codemirror/CodeMirror/blob/ed8dfeb5e2ed25b5dd1f1eccc7b757ca6dbd118d/lib/codemirror.css
 
@@ -1349,29 +1349,29 @@ also rich-text.less has its own sprite-sheet */
   - public/css/designer-flux/codemirror-custom.less
   - public/css/dashboard/codemirror.less
 */
-      /* BASICS */
-      /* PADDING */
-      /* GUTTER */
-      /* CURSOR */
-      /* Shown when moving in bi-directional text */
-      /* Can style cursor different in overwrite (non-insert) mode */
-      /* DEFAULT THEME */
-      /* Default styles for common addons */
-      /* STOP */
-      /* The rest of this file contains styles related to the mechanics of
+        /* BASICS */
+        /* PADDING */
+        /* GUTTER */
+        /* CURSOR */
+        /* Shown when moving in bi-directional text */
+        /* Can style cursor different in overwrite (non-insert) mode */
+        /* DEFAULT THEME */
+        /* Default styles for common addons */
+        /* STOP */
+        /* The rest of this file contains styles related to the mechanics of
    the editor. You probably shouldn't touch them. */
-      /* The fake, visible scrollbars. Used to force redraw during scrolling
+        /* The fake, visible scrollbars. Used to force redraw during scrolling
    before actual scrolling happens, thus preventing shaking and
    flickering artifacts. */
-      /* Force content-box sizing for the elements where we expect it */
-      /* Used to force a border model for a node */
-      /* See issue #2901 */
-      /* Help users use markselection to safely style text background */
-      /**
+        /* Force content-box sizing for the elements where we expect it */
+        /* Used to force a border model for a node */
+        /* See issue #2901 */
+        /* Help users use markselection to safely style text background */
+        /**
   Modified from CodeMirror v5.40.0
   https://github.com/codemirror/CodeMirror/blob/ed8dfeb5e2ed25b5dd1f1eccc7b757ca6dbd118d/theme/material.css
 */
-      /*
+        /*
 
     Name:       material
     Author:     Michael Kaminsky (http://github.com/mkaminsky11)
@@ -1379,12 +1379,12 @@ also rich-text.less has its own sprite-sheet */
     Original material color scheme by Mattia Astorino (https://github.com/equinusocio/material-theme)
 
 */
-      /* webflow added */
-      /* end webflow added */
-      /* webflow removed
+        /* webflow added */
+        /* end webflow added */
+        /* webflow removed
   .cm-s-webflow-material .cm-tag { color: rgba(255, 83, 112, 1); }
 */
-      /* } */
+      }
       .w-codemirror .CodeMirror {
         /* Set height, width, borders, and global font properties here */
         font-family: monospace;
@@ -1776,9 +1776,9 @@ also rich-text.less has its own sprite-sheet */
         padding-right: 0.1px;
       }
       @media print {
-        /* .w-codemirror { */
-        /* Hide the cursor when printing */
-        /* } */
+        .w-codemirror {
+          /* Hide the cursor when printing */
+        }
         .w-codemirror .CodeMirror div.CodeMirror-cursors {
           visibility: hidden;
         }
@@ -1933,11 +1933,11 @@ also rich-text.less has its own sprite-sheet */
         text-decoration: underline;
         color: white !important;
       }
-      /* .w-virtualized { */
-      /* Collection default theme */
-      /* Grid default theme */
-      /* FlexTable default theme */
-      /* } */
+      .w-virtualized {
+        /* Collection default theme */
+        /* Grid default theme */
+        /* FlexTable default theme */
+      }
       .w-virtualized .w-editor-Collection {
         position: relative;
         overflow: auto;
@@ -7989,10 +7989,8 @@ also rich-text.less has its own sprite-sheet */
         content: ' ';
         display: table;
         -ms-grid-column: 1;
-        grid-column: 1;
         grid-column-start: 1;
         -ms-grid-row: 1;
-        grid-row: 1;
         grid-row-start: 1;
         -ms-grid-column-span: 1;
         grid-column-end: 2;
@@ -8736,27 +8734,27 @@ also rich-text.less has its own sprite-sheet */
       }
       /* Collection default theme */
 
-      /* .ReactVirtualized__Collection {
-      } */
+      .ReactVirtualized__Collection {
+      }
 
-      /* .ReactVirtualized__Collection__innerScrollContainer {
-      } */
+      .ReactVirtualized__Collection__innerScrollContainer {
+      }
 
       /* Grid default theme */
 
-      /* .ReactVirtualized__Grid {
-      } */
+      .ReactVirtualized__Grid {
+      }
 
-      /* .ReactVirtualized__Grid__innerScrollContainer {
-      } */
+      .ReactVirtualized__Grid__innerScrollContainer {
+      }
 
       /* Table default theme */
 
-      /* .ReactVirtualized__Table {
-      } */
+      .ReactVirtualized__Table {
+      }
 
-      /* .ReactVirtualized__Table__Grid {
-      } */
+      .ReactVirtualized__Table__Grid {
+      }
 
       .ReactVirtualized__Table__headerRow {
         font-weight: 700;
@@ -8830,8 +8828,8 @@ also rich-text.less has its own sprite-sheet */
 
       /* List default theme */
 
-      /* .ReactVirtualized__List {
-      } */
+      .ReactVirtualized__List {
+      }
 
       .ReactVirtualized__Table__sortableHeaderColumn {
         cursor: default;
@@ -10758,7 +10756,7 @@ also rich-text.less has its own sprite-sheet */
       }
       html.w-editor-open {
         overflow: hidden;
-        scrollbar-width: none;
+        scollbar-width: none;
       }
       html.w-editor-open::-webkit-scrollbar {
         -webkit-appearance: none;
