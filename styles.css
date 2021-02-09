@@ -1,10 +1,23 @@
+body {
+  font-family: 'Lato', sans-serif;
+}
+
 .sa-input {
   box-sizing: border-box;
   width: 100%;
+  outline: none;
+  background-color: #fff;
+  border-radius: 6px;
+  border-color: #aeb8c0;
+  border-style: solid;
+  border-width: 1px;
+  background-size: 16px 16px;
+  height: 32px;
 }
 
 .sa-text {
   padding: 10px 28px 10px 15px;
+  font-size: 14px;
 }
 
 .sa-dropdown {
@@ -12,13 +25,17 @@
 }
 
 .sa-textarea {
-  resize: vertical;
+  resize: none;
   height: auto;
   padding: 10px 28px 10px 15px;
+  font-size: 14px;
 }
 
 .sa-form {
   position: relative;
+  max-width: 1024px;
+  margin: 0 auto;
+  background-color: white;
 }
 
 .sa-form-review {
@@ -32,11 +49,11 @@
 }
 
 .sa-form-field {
-  margin: 20px 0;
+  margin: 24px 2%;
 }
 
 .sa-form-page {
-  padding: 1px 0;
+  padding: 1px 2px;
   max-width: 1024px;
   margin: 0 auto;
 }
@@ -46,8 +63,8 @@
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: space-between;
-  padding-bottom: 20px;
-  margin: 10px 0;
+  padding-bottom: 16px;
+  margin: 12px 2%;
 }
 
 .sa-form-page-prev,
@@ -56,6 +73,7 @@
   white-space: nowrap;
   text-align: center;
   cursor: pointer;
+  filter: brightness(100%);
   width: 200px;
   min-width: 20%;
   max-width: 46%;
@@ -77,6 +95,12 @@
     min-width: 50%;
     max-width: 100%;
   }
+}
+
+.sa-form-page-prev:hover,
+.sa-form-page-next:hover,
+.sa-form-page-submit:hover {
+  filter: brightness(75%);
 }
 
 .sa-form-page-prev:active,
@@ -112,8 +136,8 @@
 }
 
 .sa-input.sa-required::before {
-  position: absolute;
-  top: -26px;
+  position: relative;
+  top: -24px;
   content: '*';
   color: red;
 }
@@ -122,6 +146,8 @@
 .sa-radio-container {
   display: block;
   position: relative;
+  padding-left: 12px;
+  margin-bottom: 12px;
   cursor: pointer;
   font-size: 16px;
   -webkit-user-select: none;
@@ -135,36 +161,34 @@
   position: absolute;
   opacity: 0;
   cursor: pointer;
-  margin: 0;
 }
 
 .sa-radio-container label {
   cursor: pointer;
-  margin: 0;
 }
 
 .sa-radio {
   position: absolute;
-  width: 18px;
-  height: 18px;
-  border: 2px solid #669f34;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #777777;
   border-radius: 50%;
   cursor: pointer;
 }
 
 .sa-radio-checkmark {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 14px;
-  height: 14px;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   content: '';
   display: none;
 }
 
 .sa-radio-container:hover input ~ .sa-radio > .sa-radio-checkmark {
-  background-color: #669f34;
+  background-color: #777777;
   content: '';
   display: block;
 }
@@ -207,7 +231,7 @@
   position: absolute;
   width: 16px;
   height: 16px;
-  border: 2px solid #669f34;
+  border: 2px solid #777777;
   border-radius: 25%;
   cursor: pointer;
 }
@@ -234,10 +258,10 @@
   content: '';
   display: block;
   left: 4px;
-  top: 0;
+  top: 0px;
   width: 5px;
   height: 10px;
-  border: solid #669f34;
+  border: solid #777777;
   border-width: 0 3px 3px 0;
   -webkit-transform: rotate(45deg);
   -ms-transform: rotate(45deg);
@@ -247,7 +271,7 @@
 .sa-checkbox-container input:checked ~ .sa-checkbox > .sa-checkbox-checkmark {
   display: block;
   left: 4px;
-  top: 0;
+  top: 0px;
   width: 5px;
   height: 10px;
   border: solid white;
@@ -259,6 +283,164 @@
 
 .sa-checkbox-container .sa-checkbox-label {
   margin-left: 26px;
+}
+
+/* Themes */
+.sa-theme0 {
+  background-color: white;
+}
+
+.sa-theme1 {
+  background-color: #e6f9e6;
+  font-family: Helvetica;
+}
+
+.sa-theme2 {
+  background-color: #f3f3f3;
+  font-family: 'Times New Roman';
+}
+
+.sa-theme3 {
+  background-color: #ecf3fc;
+  font-family: Verdana;
+}
+
+.sa-theme4 {
+  background-color: #686868;
+  font-family: Arial;
+}
+
+.sa-theme5 {
+  background-color: #fff2e5;
+  font-family: 'Courier New';
+  font-size: 16px;
+}
+
+.sa-theme6 {
+  background-color: #f3e7fe;
+  font-family: 'Trebuchet MS';
+  font-size: 16px;
+}
+
+/* Placeholder Styles */
+.sa-placeholder-Arial::-webkit-input-placeholder {
+  font-family: Arial;
+}
+
+.sa-placeholder-Chalkboard::-webkit-input-placeholder {
+  font-family: Chalkboard;
+}
+
+.sa-placeholder-ComicSansMS::-webkit-input-placeholder {
+  font-family: 'Comic Sans MS';
+}
+
+.sa-placeholder-CourierNew::-webkit-input-placeholder {
+  font-family: 'Courier New';
+}
+
+.sa-placeholder-Georgia::-webkit-input-placeholder {
+  font-family: Georgia;
+}
+
+.sa-placeholder-Helvetica::-webkit-input-placeholder {
+  font-family: Helvetica;
+}
+
+.sa-placeholder-Impact::-webkit-input-placeholder {
+  font-family: Impact;
+}
+
+.sa-placeholder-LucidaSansUnicode::-webkit-input-placeholder {
+  font-family: 'Lucida Sans Unicode';
+}
+
+.sa-placeholder-Tahoma::-webkit-input-placeholder {
+  font-family: Tahoma;
+}
+
+.sa-placeholder-TimesNewRoman::-webkit-input-placeholder {
+  font-family: 'Times New Roman';
+}
+
+.sa-placeholder-TrebuchetMS::-webkit-input-placeholder {
+  font-family: 'Trebuchet MS';
+}
+
+.sa-placeholder-Verdana::-webkit-input-placeholder {
+  font-family: Verdana;
+}
+
+.sa-placeholder-Arial::-moz-placeholder {
+  font-family: Arial;
+}
+
+.sa-placeholder-Chalkboard::-moz-placeholder {
+  font-family: Chalkboard;
+}
+
+.sa-placeholder-ComicSansMS::-moz-placeholder {
+  font-family: 'Comic Sans MS';
+}
+
+.sa-placeholder-CourierNew::-moz-placeholder {
+  font-family: 'Courier New';
+}
+
+.sa-placeholder-Georgia::-moz-placeholder {
+  font-family: Georgia;
+}
+
+.sa-placeholder-Helvetica::-moz-placeholder {
+  font-family: Helvetica;
+}
+
+.sa-placeholder-Impact::-moz-placeholder {
+  font-family: Impact;
+}
+
+.sa-placeholder-LucidaSansUnicode::-moz-placeholder {
+  font-family: 'Lucida Sans Unicode';
+}
+
+.sa-placeholder-Tahoma::-moz-placeholder {
+  font-family: Tahoma;
+}
+
+.sa-placeholder-TimesNewRoman::-moz-placeholder {
+  font-family: 'Times New Roman';
+}
+
+.sa-placeholder-TrebuchetMS::-moz-placeholder {
+  font-family: 'Trebuchet MS';
+}
+
+.sa-placeholder-Verdana::-moz-placeholder {
+  font-family: Verdana;
+}
+
+.sa-placeholder-italic::-webkit-input-placeholder {
+  font-style: italic;
+}
+
+.sa-placeholder-bold::-webkit-input-placeholder {
+  font-weight: bold;
+}
+
+.sa-placeholder-underlined::-webkit-input-placeholder {
+  text-decoration: underline;
+}
+
+.sa-placeholder-italic::-moz-placeholder {
+  font-style: italic;
+}
+
+.sa-placeholder-bold::-moz-placeholder {
+  font-weight: bold;
+}
+
+.sa-placeholder-underlined::-moz-placeholder {
+  text-decoration: underline;
 }
 
 .sa-form-divider {
