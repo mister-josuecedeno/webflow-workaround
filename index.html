@@ -1,1007 +1,167 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-  <title>View Form</title>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script
-    type="text/javascript">(function () { var sa = { form: { rootEl: null, init: [] }, utils: { fireLayoutChangedEvent(scrollToTop) { if (sa.form.rootEl == null) { return; } if (scrollToTop) { let target = window.parent.document.querySelector('#formDialog')?.parentElement || window.parent.document.querySelector('#viewOverlayBodyRegionContainer'); if (target) { target.scrollTop = 0; } else if (window.parent.document.querySelector('#formOverlayDomID')) { window.parent.scrollTo(0, 0); } } sa.form.rootEl.dispatchEvent(new CustomEvent('formLayoutChanged')); } } }; function InitializeForm() { sa.form.rootEl = document.querySelector(".sa-form"); for (let i = 0; i < sa.form.init.length; i++) { if (typeof sa.form.init[i] === "function") { sa.form.init[i](); } } document.removeEventListener("DOMContentLoaded", InitializeForm); } document.addEventListener("DOMContentLoaded", InitializeForm); var SaValidation = { text: function (field, isValid, isRequired, inputType) { const input = field.querySelector(inputType); const overLimit = input.getAttribute("data-limit") ? parseInt(input.getAttribute("data-limit")) < input.value.length : false; input.classList.remove("sa-invalid"); if (!input.checkValidity() || overLimit || (input.value.trim() === "" && isRequired)) { isValid.value = false; input.classList.add("sa-invalid"); } }, number: function (field, isValid, isRequired) { this.text(field, isValid, isRequired, "input"); }, shortText: function (field, isValid, isRequired) { this.text(field, isValid, isRequired, "input"); }, longText: function (field, isValid, isRequired) { this.text(field, isValid, isRequired, "textarea"); }, email: function (field, isValid, isRequired) { const input = field.querySelector("input"); input.classList.remove("sa-invalid"); const div = field.querySelector("div"); if ((input.value === "" && isRequired) || (input.value !== "" && !/(.+)@(.+){2,}\.(.+){2,}/.test(input.value)) || (div.classList.contains("sa-character-limit-exceeded"))) { isValid.value = false; input.classList.add("sa-invalid"); } }, dropdown: function (field, isValid, isRequired) { const input = field.querySelector("select"); input.classList.remove("sa-invalid"); if (input.selectedIndex === 0 && isRequired) { isValid.value = false; input.classList.add("sa-invalid"); } }, checklist: function (field, isValid, isRequired) { field.classList.remove("sa-invalid-label"); const checkboxes = field.querySelectorAll("input"); var chkValid = false; for (let j = 0; j < checkboxes.length; j++) { if (checkboxes[j].checked) { chkValid = true; break; } } if (!chkValid && isRequired) { isValid.value = false; field.classList.add("sa-invalid-label"); } }, radio: function (field, isValid, isRequired) { field.classList.remove("sa-invalid-label"); const radioInputs = field.querySelectorAll("input"); var radioValid = false; for (let j = 0; j < radioInputs.length; j++) { if (radioInputs[j].checked) { radioValid = true; break; } } if (!radioValid && isRequired) { isValid.value = false; field.classList.add("sa-invalid-label"); } }, rating: function (field, isValid, isRequired) { field.classList.remove("sa-invalid-rating"); const ratingInputs = field.querySelectorAll("input"); var ratingValid = false; for (let j = 0; j < ratingInputs.length; j++) { if (ratingInputs[j].checked) { ratingValid = true; break; } } if (!ratingValid && isRequired) { isValid.value = false; field.classList.add("sa-invalid-rating"); } }, review: function (field, isValid, isRequired) { const reviewInputs = field.querySelectorAll("input"); var reviewValid = false; for (let j = 0; j < reviewInputs.length; j++) { if (reviewInputs[j].checked) { reviewValid = true; break; } } const reviewTextArea = field.querySelector("textarea"); reviewTextArea.classList.remove("sa-invalid"); if (reviewTextArea.value.trim() === "") { reviewValid = false; } if (!reviewValid && isRequired) { isValid.value = false; reviewTextArea.classList.add("sa-invalid"); } }, dateTime: function (field, isValid, isRequired) { const input = field.querySelector("input"); input.classList.remove("sa-invalid"); const settings = JSON.parse(input.getAttribute("data-dateTimeSettings")); if (settings.noCalendar === true && input.value.trim() === "" && isRequired) { isValid.value = false; input.classList.add("sa-invalid"); } else if (settings.noCalendar === false) { let parseDate = input.value; if (settings.dateFormat === "d-m-Y") { const dateParts = parseDate.split("-"); parseDate = dateParts[1] + "-" + dateParts[0] + "-" + dateParts[2]; } const date = Date.parse(parseDate.replace(/-/g, ' ')); if (isNaN(date) && isRequired) { isValid.value = false; input.classList.add("sa-invalid"); } } }, ccupdate: function (field, isValid, isRequired) { let button = field.querySelector('#Clearent-pay-now'); if (isRequired) { let ccresult = field.getAttribute('data-ccresult'); if (ccresult === null || ccresult.length === 0) { isValid.value = false; button.classList.add('sa-invalid'); return; } let obj = JSON.parse(ccresult); isValid.value = !!obj.token && obj.token.length > 0; if (isValid.value) button.classList.remove('sa-invalid'); else button.classList.add('sa-invalid'); return; } if (button != null) button.classList.remove('sa-invalid'); }, hidden: function (field, isValid, isRequired) { return; } }; var SaValidationStyle = { number: function (field) { const input = field.querySelector("input"); input.addEventListener("change", function (event) { if (event.target.checkValidity()) event.target.classList.remove("sa-invalid"); else event.target.classList.add("sa-invalid"); }); }, shortText: function (field) { const input = field.querySelector("input"); input.addEventListener("change", function (event) { if (event.target.value.trim() !== "") event.target.classList.remove("sa-invalid"); }); }, longText: function (field) { const input = field.querySelector("textarea"); input.addEventListener("change", function (event) { if (event.target.value.trim() !== "") event.target.classList.remove("sa-invalid"); }); }, email: function (field) { const input = field.querySelector("input"); input.addEventListener("change", function (event) { if (/(.+)@(.+){2,}\.(.+){2,}/.test(event.target.value)) event.target.classList.remove("sa-invalid"); }); }, dropdown: function (field) { const input = field.querySelector("select"); input.addEventListener("change", function (event) { if (event.target.selectedIndex !== 0) { event.target.classList.remove("sa-invalid"); } }); }, checklist: function (field) { const checkboxes = field.querySelectorAll("input"); for (let j = 0; j < checkboxes.length; j++) { checkboxes[j].addEventListener("change", function (event) { if (event.target.checked) { const wrapper = event.target.closest(".sa-invalid-label"); if (wrapper) wrapper.classList.remove("sa-invalid-label"); } }); } }, radio: function (field) { const radioInputs = field.querySelectorAll("input"); for (let j = 0; j < radioInputs.length; j++) { radioInputs[j].addEventListener("change", function (event) { if (event.target.checked) { const wrapper = event.target.closest(".sa-invalid-label"); if (wrapper) wrapper.classList.remove("sa-invalid-label"); } }); } }, rating: function (field) { const ratingInputs = field.querySelectorAll("input"); for (let j = 0; j < ratingInputs.length; j++) { ratingInputs[j].addEventListener("change", function (event) { if (event.target.checked) { const wrapper = event.target.closest(".sa-invalid-rating"); if (wrapper) wrapper.classList.remove("sa-invalid-rating"); } }); } }, review: function (field) { const reviewInputs = field.querySelectorAll("input"); const reviewTextArea = field.querySelector("textarea"); for (let j = 0; j < reviewInputs.length; j++) { reviewInputs[j].addEventListener("change", function (event) { if (event.target.checked && reviewTextArea.value.trim() !== "") { reviewTextArea.classList.remove("sa-invalid"); } }); } reviewTextArea.addEventListener("change", function (event) { if (event.target.value.trim() !== "") event.target.classList.remove("sa-invalid"); }); }, dateTime: function (field) { const input = field.querySelector("input"); input.addEventListener("change", function (event) { if (event.target.value.trim() !== "") event.target.classList.remove("sa-invalid"); }); }, ccupdate: function (field) { const config = { attributes: true, childList: false, subtree: false, attributeFilter: ['data-ccresult'] }; const callback = function (mutationsList, observer) { for (let mutation of mutationsList) { let button = mutation.target.querySelector('#Clearent-pay-now'); let ccresult = mutation.target.getAttribute('data-ccresult'); if (ccresult.length === 0 || JSON.parse(ccresult).token.length === 0) button.classList.add('sa-invalid'); else button.classList.remove('sa-invalid'); } }; const observer = new MutationObserver(callback); observer.observe(field, config); }, hidden: function (field, isValid, isRequired) { return; } }; var SaValidateNavRules = { text: function (field, rule, inputType) { const input = field.querySelector(inputType); const value = rule.values[0]; switch (rule.condition) { case 10: return input.value === value; case 11: return input.value.indexOf(value) > -1; case 12: return input.value.indexOf(value) === 0; case 13: return input.value.indexOf(value) < 0; default: return false; } }, numeric: function (condition, inputValue, value) { switch (condition) { case 0: return inputValue === value; case 1: return inputValue < value; case 2: return inputValue > value; case 3: return inputValue <= value; case 4: return inputValue >= value; default: return false; } }, number: function (field, rule) { const input = field.querySelector('input'); const inputValue = parseInt(input.value); const value = parseInt(rule.values[0]); return this.numeric(rule.condition, inputValue, value); }, shortText: function (field, rule) { return this.text(field, rule, 'input'); }, longText: function (field, rule) { return this.text(field, rule, 'textarea'); }, email: function (field, rule) { return this.text(field, rule, 'input'); }, dropdown: function (field, rule) { const input = field.querySelector('select'); const value = rule.values[0]; const selectedOption = input[input.selectedIndex]; let selectedValue = selectedOption.getAttribute('data-value').toString(); if (selectedValue.length !== value.length && isNaN(parseInt(selectedValue))) { selectedValue = input.selectedIndex.toString(); }        /*         * the following switch block can be replaced with "return selectedValue === value;"         *         * I did not do this because by the time I realized it was like this, the R1 release was a few days away.         */        switch (rule.condition) { case 10: return selectedValue === value; default: return false; } }, checklist: function (field, rule) { const inputs = field.querySelectorAll('input'); switch (rule.condition) { case 20: for (let i = 0; i < rule.values.length; i++) { let index = parseInt(rule.values[i]); if (!inputs[index].checked) return false; } return true; case 21: for (let i = 0; i < rule.values.length; i++) { let index = parseInt(rule.values[i]); if (inputs[index].checked) return true; } return false; case 23: for (let i = 0; i < rule.values.length; i++) { let index = parseInt(rule.values[i]); if (inputs[index].checked) return false; } return true; default: return false; } }, radio: function (field, rule) { const value = rule.values[0]; const inputs = field.querySelectorAll("input"); let selectedValue = ''; for (let i = 0; i < inputs.length; i++) { if (inputs[i].checked) { selectedValue = inputs[i].getAttribute('data-value').toString(); if (selectedValue.length !== value.length && isNaN(parseInt(selectedValue))) selectedValue = (i + 1).toString(); break; } }        /*         * the following switch block can be replaced with "return selectedValue === value;"         *          * I did not do this because by the time I realized it was like this, the R1 release was a few days away.         */        switch (rule.condition) { case 10: return selectedValue === value; default: return false; } }, rating: function (field, rule) { const inputs = field.querySelectorAll("input"); const value = parseInt(rule.values[0]); var inputValue = 0; for (var i = 0; i < inputs.length; i++) { if (inputs[i].checked) { inputValue = i; break; } } return this.numeric(rule.condition, inputValue, value); }, review: function (field, rule) { const inputs = field.querySelectorAll("input"); const value = parseInt(rule.values[0]); var inputValue = 0; for (var i = 0; i < inputs.length; i++) { if (inputs[i].checked) { inputValue = parseInt(inputs[i].value); break; } } return this.numeric(rule.condition, inputValue, value); }, dateTime: function (field, rule) { const input = field.querySelector("input"); const settings = JSON.parse(input.getAttribute("data-dateTimeSettings")); let value = new Date(rule.values[0]); value = new Date(value.getFullYear(), value.getMonth(), value.getDate()).getTime(); if (settings.noCalendar === true && input.value.trim() === "") return false; else if (settings.noCalendar === false) { let day = -1; let month = -1; let year = -1; let parseDate = input.value; const dateParts = parseDate.split("-"); let monthIndex = 0; let dayIndex = 1; if (settings.dateFormat === "d-m-Y") { dayIndex = 0; monthIndex = 1; } day = parseInt(dateParts[dayIndex]); month = parseInt(dateParts[monthIndex]) - 1; let yearString = dateParts[2].split(' ')[0]; if (yearString.length === 2) yearString = '20' + yearString; year = parseInt(yearString); let date = new Date(year, month, day).getTime(); switch (rule.condition) { case 30: return date === value; case 31: return date < value; case 32: return date > value; case 33: return date <= value; case 34: return date >= value; default: return false; } } return false; }, ccupdate: function (field, rule) { return false; } }; function ValidateFields(page) { const isValid = { value: true }; const fields = page.querySelectorAll("[data-fieldtype]"); var scrolledToInvalidField = false; for (let i = 0; i < fields.length; i++) { const field = fields[i]; const fieldType = field.getAttribute("data-fieldtype"); let isRequired = false; const reqValue = field.getAttribute("required"); if (reqValue === "") isRequired = true; if (SaValidation[fieldType] == null) continue; SaValidation[fieldType](field, isValid, isRequired); if (!scrolledToInvalidField && !isValid.value) { field.scrollIntoView(); scrolledToInvalidField = true; } } if (isValid.value === true) UpdatePageNavigation(page); return isValid.value; } function UpdateInputValidStyle() { const fields = document.querySelectorAll("[data-fieldtype]"); for (let i = 0; i < fields.length; i++) { const field = fields[i]; const fieldType = field.getAttribute("data-fieldtype"); if (fieldType !== "attachment") SaValidationStyle[fieldType](field); } } function UpdatePageNavigation(page) { var nextPage = page.getAttribute('data-next-page-default'); const fields = page.querySelectorAll('[data-fieldtype]'); for (let i = 0; i < fields.length; i++) { var field = fields[i]; const fieldType = field.getAttribute('data-fieldtype'); var serialized = field.getAttribute('data-jump-rules'); if (serialized === undefined || serialized === null) continue; var jumpRules = JSON.parse(serialized); for (let j = 0; j < jumpRules.length; j++) { var validator = SaValidateNavRules[fieldType]; if (validator === undefined || validator === null) continue; var rule = jumpRules[j]; if (SaValidateNavRules[fieldType](field, rule)) { nextPage = rule.jumpTo; break; } } } page.setAttribute('data-next-page', nextPage); } sa.form.init.push(UpdateInputValidStyle); function LoadSubmitButton(confirmationType, data) { var submitBtn = document.getElementById("sa-form-submit"); switch (confirmationType) { case "Document": case "URL": submitBtn.addEventListener("click", function () { var isDisabled = submitBtn.classList.contains('disabled'); if (isDisabled) return; const page = submitBtn.parentElement.parentElement; if (ValidateFields(page)) { SubmitForm(page, function () { GoToConfirmationUrl(data); let progressIndicator = document.querySelector('#sa-submission-progress-container'); progressIndicator.style.display = "none"; EnablePaging(); }); } }); break; case "SimpleMessage": submitBtn.addEventListener("click", function () { var isDisabled = submitBtn.classList.contains('disabled'); if (isDisabled) return; const page = submitBtn.parentElement.parentElement; if (ValidateFields(page)) { SubmitForm(page, DisplayConfirmation); } }); break; } } function DisablePaging() { let nextButtons = document.getElementsByClassName("sa-form-page-next"); for (let i = 0; i < nextButtons.length; i++)        nextButtons[i].classList.add("disabled"); let previousButtons = document.getElementsByClassName("sa-form-page-prev"); for (let i = 0; i < previousButtons.length; i++)        previousButtons[i].classList.add("disabled"); let submitBtn = document.getElementById("sa-form-submit"); submitBtn.classList.add("disabled"); }; function EnablePaging() { let nextButtons = document.getElementsByClassName("sa-form-page-next"); for (let i = 0; i < nextButtons.length; i++)        nextButtons[i].classList.remove("disabled"); let previousButtons = document.getElementsByClassName("sa-form-page-prev"); for (let i = 0; i < previousButtons.length; i++)        previousButtons[i].classList.remove("disabled"); let submitBtn = document.getElementById("sa-form-submit"); submitBtn.classList.remove("disabled"); }; function DisplayConfirmation() { let progressIndicator = document.querySelector('#sa-submission-progress-container'); progressIndicator.style.display = "none"; EnablePaging(); const formEl = document.getElementsByClassName("sa-form"); if (formEl !== null) formEl[0].style.display = "none"; document.getElementById("sa-form-confirmation").style.display = "block"; sa.utils.fireLayoutChangedEvent(); } function GoToConfirmationUrl(data) { if (data !== "") { data = data.startsWith("http") ? data : "http://" + data; window.location = data; } else { DisplayConfirmation(); } } function Post(url, data, success, failure) { var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP"); xhr.open('POST', url); xhr.onreadystatechange = function () { if (xhr.readyState > 3) { if (xhr.status == 200) success(xhr.response); else if (!!failure && typeof failure === 'function') failure(xhr.response); } }; xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest'); xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8'); xhr.setRequestHeader('x-CompanyID', '02fb34c6-0e7a-409b-b564-c88b36db60ae'); xhr.responseType = "json"; xhr.withCredentials = false; xhr.crossDomain = true; xhr.send(JSON.stringify(data)); return xhr; } function GetUrlVars() { var vars = {}; window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) { vars[key] = value; }); return vars; } var saFormUploads = saFormUploads || { Pending: [] }; function SubmitForm(page, success) { if (saFormUploads !== undefined && saFormUploads.Pending.length > 0) return; DisablePaging(); var docTop = document.querySelector(".sa-form"); window.scrollTo(window.scrollX, docTop.offsetTop); document.querySelector("html").style = "overflow: hidden"; let progressIndicator = document.querySelector('#sa-submission-progress-container'); progressIndicator.style.display = "block"; AddPageFormData(page); let error = function (response) { let progressIndicator = document.querySelector('#sa-submission-progress-container'); progressIndicator.style.display = "none"; alert('We were unable to submit the form. Try again in a few moments.'); console.error(response); EnablePaging(); };    /*@begincap@*/    let viewState = document.querySelector('#saFormData'); let saFormData = viewState.value; const urlVars = GetUrlVars(); const submitData = JSON.parse(saFormData); const data = { request: { formTemplateId: 'c82f92c8-60c6-4f60-bf12-a043bae0b7a7', submittedById: urlVars["sId"], submittedByType: urlVars["sType"], parentId: urlVars["pId"], parentType: urlVars["pType"], source: urlVars["source"], data: submitData } }; Post("https://my.serviceautopilot.com/MarketingBFF/Form/SubmitForm", data, success, error);    /*@endcap@*/ } function ApplyTagsOnClick() { const urlVars = GetUrlVars(); const data = { request: { formTemplateId: 'c82f92c8-60c6-4f60-bf12-a043bae0b7a7', companyId: '02fb34c6-0e7a-409b-b564-c88b36db60ae', parentId: urlVars["pId"], parentType: urlVars["pType"] } }; Post("https://my.serviceautopilot.com/MarketingBFF/Form/ApplyTagsOnClick", data, function () { }); } function InitializeSubmit() { ApplyTagsOnClick(); LoadSubmitButton("SimpleMessage", "<div><span style=&quot;font-size: 16px; color: rgb(0, 0, 0);&quot;><span style=&quot;font-family: Helvetica;&quot;>Thank you for reaching out to the Arbor Care Team we will be in touch with you as soon as we can!</span></span><br><span style=&quot;color: rgb(0, 122, 255);&quot;><br></span><span style=&quot;font-size: 16px; color: rgb(0, 122, 255);&quot;><span style=&quot;font-family: Helvetica;&quot;><a href=&quot;http://www.facebook.com/arborcarewa&quot; rel=&quot;noopener noreferrer&quot; target=&quot;_blank&quot;><strong>Like us on Facebook!</strong></a></span></span></div>"); } sa.form.init.push(InitializeSubmit); function InitializeCharacterCounters() { const counters = document.getElementsByClassName("sa-character-counter"); for (let i = 0; i < counters.length; i++) { const inputId = counters[i].getAttribute('for'); const input = document.getElementById(inputId); if (input === null || input === undefined) continue; input.addEventListener("keyup", function () { const maxValue = this.getAttribute("data-limit"); const count = this.value.length; const value = count / maxValue; this.nextSibling.style.display = 'none'; if (value >= .75) { this.nextSibling.textContent = count + "/" + maxValue; this.nextSibling.style.display = ''; } if (count > maxValue) { this.parentElement.classList.add("sa-character-limit-exceeded"); } else { this.parentElement.classList.remove("sa-character-limit-exceeded"); } }); } } sa.form.init.push(InitializeCharacterCounters); function InitializeChecklistField() { var choices = document.getElementsByClassName("sa-checkbox-container"); for (var i = 0; i < choices.length; i++) { var choice = choices[i]; choice.onclick = function (data) { var radio = data.currentTarget.getElementsByClassName("sa-checkboxBtn")[0]; getChoiceBtns(radio); }; } function getChoiceBtns(currentTarget) { var currentId = currentTarget.id; var x = document.getElementsByClassName("sa-checkbox-container"); for (var i = 0; i < x.length; i++) { var div = x[i]; var label = div.getElementsByClassName("sa-checkbox")[0]; if (label.getAttribute("for") === currentId) { if (currentTarget.checked) label.style.borderColor = label.getAttribute("data-color"); else label.style.borderColor = "#777777"; } } } } sa.form.init.push(InitializeChecklistField); var saFormUploads = saFormUploads || { Pending: [] }; function GetPageElementById(id) { return document.querySelector('.sa-form-page[data-index="' + id + '"]'); } function InitializePaging() { let viewState = document.createElement('input'); viewState.id = 'saFormData'; viewState.setAttribute('type', 'hidden'); let saFormData = JSON.stringify({ pages: [] }); viewState.value = (saFormData); document.body.appendChild(viewState); let firstPageIndex = document.querySelectorAll('.sa-form-page')[0].getAttribute('data-index'); sessionStorage.setItem("navTrail", JSON.stringify([])); sessionStorage.setItem("currentPageId", firstPageIndex); var previousButtons = document.getElementsByClassName("sa-form-page-prev"); for (var i = 0; i < previousButtons.length; i++) { var el = previousButtons[i]; el.onclick = function () { if (saFormUploads !== undefined && saFormUploads.Pending.length > 0) return; var isDisabled = el.classList.contains('disabled'); if (isDisabled) return; RemovePageFromData(); var currentPageId = sessionStorage.getItem("currentPageId"); var currentPageElement = GetPageElementById(currentPageId); currentPageElement.style.display = "none"; var trail = JSON.parse(sessionStorage.getItem("navTrail")); if (trail.length === 0) return; var previousPageIndex = trail.pop(); var pageElement = GetPageElementById(previousPageIndex); pageElement.style.display = "block"; var docTop = document.querySelector(".sa-form"); window.scrollTo(window.scrollX, docTop.offsetTop); sa.utils.fireLayoutChangedEvent(); sessionStorage.setItem("navTrail", JSON.stringify(trail)); sessionStorage.setItem("currentPageId", previousPageIndex); }; } var nextButtons = document.getElementsByClassName("sa-form-page-next"); for (var i = 0; i < nextButtons.length; i++) { var el = nextButtons[i]; el.onclick = function () { if (saFormUploads !== undefined && saFormUploads.Pending.length > 0) return; var isDisabled = el.classList.contains('disabled'); if (isDisabled) return; var currentPageId = sessionStorage.getItem("currentPageId"); var currentPageElement = GetPageElementById(currentPageId); if (ValidateFields(currentPageElement)) { AddPageFormData(currentPageElement); currentPageElement.style.display = "none"; var nextPageId = currentPageElement.getAttribute("data-next-page"); var nextPageElement = GetPageElementById(nextPageId); nextPageElement.style.display = "block"; var docTop = document.querySelector(".sa-form"); window.scrollTo(window.scrollX, docTop.offsetTop); sa.utils.fireLayoutChangedEvent(); var trail = JSON.parse(sessionStorage.getItem("navTrail")); trail.push(currentPageId); sessionStorage.setItem("navTrail", JSON.stringify(trail)); sessionStorage.setItem("currentPageId", nextPageId); } }; } } function RemovePageFromData() { let viewState = document.querySelector('#saFormData'); let formData = JSON.parse(viewState.value); formData.pages.pop(); viewState.value = JSON.stringify(formData); } function AddPageFormData(page) { let viewState = document.querySelector('#saFormData'); let pageIndex = parseInt(page.getAttribute("data-index")); let formData = JSON.parse(viewState.value); if (formData.pages.findIndex(x => x.page === pageIndex) < 0) { formData.pages.push(new PageModel(pageIndex, page)); viewState.value = JSON.stringify(formData); } } function PageModel(pageIndex, pageElement) { let self = this; self.page = pageIndex; self.fields = []; self.GetFieldValues = function () { const inputs = pageElement.querySelectorAll("[data-fieldtype]"); if (window.saUploadFiles === null) window.saUploadFiles = []; for (let i = 0; i < inputs.length; i++) { const input = inputs[i]; const fieldId = parseInt(input.getAttribute("data-field")); switch (input.getAttribute("data-fieldtype")) { case "longText": self.fields.push({ fieldId: fieldId, value: input.querySelector("textarea").value }); break; case "dropdown": self.fields.push({ fieldId: fieldId, value: input.querySelector("select").value }); break; case "radio": case "rating": { let value = ''; const radio = input.querySelector("input:checked"); if (radio !== undefined && radio !== null && radio.value) value = radio.value; self.fields.push({ fieldId: fieldId, value: value }); } break; case "checklist": { const fieldValues = []; const checkedItems = input.querySelectorAll("input:checked") ? input.querySelectorAll("input:checked") : []; for (let j = 0; j < checkedItems.length; j++) { fieldValues.push(checkedItems[j].value); } self.fields.push({ fieldId: fieldId, values: fieldValues }); } break; case "review": { const reviewValue = input.querySelector("input:checked") ? input.querySelector("input:checked").value : 0; self.fields.push({ fieldId: fieldId, values: [reviewValue, input.querySelector("textarea").value] }); } break; case "attachment": { if (saFormUploads === undefined || saFormUploads === null || saFormUploads.Uploads === undefined || saFormUploads.Uploads === null || saFormUploads.Uploads.length === 0) break; const model = saFormUploads.Uploads.find(x => x.FieldId == fieldId); if (model == null) break; const uploads = model.Uploads; const fieldValues = []; for (let j = 0; j < uploads.length; j++)                            fieldValues.push(JSON.stringify(uploads[j].data)); self.fields.push({ fieldId: fieldId, values: fieldValues }); } break; case "ccupdate": { let value = input.getAttribute('data-ccresult'); self.fields.push({ fieldId: fieldId, value: value }); } break; case "hidden": self.fields.push({ fieldId: fieldId, value: input.value }); break; default: self.fields.push({ fieldId: fieldId, value: input.querySelector("input").value }); break; } } }; self.GetFieldValues(pageElement); } sa.form.init.push(InitializePaging); })(); //# sourceURL=SaForms.js</script>
-  <link href="https://fonts.googleapis.com/css?family=Lato&amp;amp;display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Lato', sans-serif;
-    }
-
-    .sa-input {
-      box-sizing: border-box;
-      width: 100%;
-      outline: none;
-      background-color: #fff;
-      border-radius: 6px;
-      border-color: #AEB8C0;
-      border-style: solid;
-      border-width: 1px;
-      background-size: 16px 16px;
-      height: 32px;
-    }
-
-    .sa-text {
-      padding: 10px 28px 10px 15px;
-      font-size: 14px;
-    }
-
-    .sa-dropdown {
-      height: auto;
-    }
-
-    .sa-textarea {
-      resize: none;
-      height: auto;
-      padding: 10px 28px 10px 15px;
-      font-size: 14px;
-    }
-
-    .sa-form {
-      position: relative;
-      max-width: 1024px;
-      margin: 0 auto;
-      background-color: white;
-    }
-
-    .sa-form-review {
-      margin: 0 auto;
-      background-color: white;
-    }
-
-    .sa-form-body {
-      background-color: white;
-      color: black;
-    }
-
-    .sa-form-field {
-      margin: 24px 2%;
-    }
-
-    .sa-form-page {
-      padding: 1px 2px;
-      max-width: 1024px;
-      margin: 0 auto;
-    }
-
-    .sa-form-page-nav {
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      padding-bottom: 16px;
-      margin: 12px 2%;
-    }
-
-    .sa-form-page-prev,
-    .sa-form-page-next,
-    .sa-form-page-submit {
-      white-space: nowrap;
-      text-align: center;
-      cursor: pointer;
-      filter: brightness(100%);
-      width: 200px;
-      min-width: 20%;
-      max-width: 46%;
-      margin-bottom: 10px;
-    }
-
-    .sa-form-page-prev.disabled,
-    .sa-form-page-next.disabled,
-    .sa-form-page-submit.disabled {
-      filter: brightness(50%);
-      cursor: not-allowed;
-    }
-
-    @media only screen and (max-width: 600px) {
-
-      .sa-form-page-prev,
-      .sa-form-page-next,
-      .sa-form-page-submit {
-        width: 100%;
-        min-width: 50%;
-        max-width: 100%;
-      }
-    }
-
-    .sa-form-page-prev:hover,
-    .sa-form-page-next:hover,
-    .sa-form-page-submit:hover {
-      filter: brightness(75%);
-    }
-
-    .sa-form-page-prev:active,
-    .sa-form-page-next:active,
-    .sa-form-page-submit:active {
-      filter: brightness(105%);
-    }
-
-    .sa-character-counter {
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-end;
-    }
-
-    .sa-character-limit-exceeded input,
-    .sa-character-limit-exceeded textarea,
-    .sa-invalid {
-      border: 1px solid red;
-      background-color: rgba(255, 0, 0, 0.1);
-    }
-
-    .sa-invalid-label {
-      color: red;
-    }
-
-    .sa-character-limit-exceeded label {
-      color: red;
-    }
-
-    .sa-required::before {
-      content: '* ';
-      color: red;
-    }
-
-    .sa-input.sa-required::before {
-      position: relative;
-      top: -24px;
-      content: '*';
-      color: red;
-    }
-
-    /* Radio Buttons */
-    .sa-radio-container {
-      display: block;
-      position: relative;
-      padding-left: 12px;
-      margin-bottom: 12px;
-      cursor: pointer;
-      font-size: 16px;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-    }
-
-    /* Hide the browser's default radio button */
-    .sa-radio-container input {
-      position: absolute;
-      opacity: 0;
-      cursor: pointer;
-    }
-
-    .sa-radio-container label {
-      cursor: pointer;
-    }
-
-    .sa-radio {
-      position: absolute;
-      width: 16px;
-      height: 16px;
-      border: 2px solid #777777;
-      border-radius: 50%;
-      cursor: pointer;
-    }
-
-    .sa-radio-checkmark {
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      content: '';
-      display: none;
-    }
-
-    .sa-radio-container:hover input~.sa-radio>.sa-radio-checkmark {
-      background-color: #777777;
-      content: '';
-      display: block;
-    }
-
-    .sa-radio-container input:checked~.sa-radio>.sa-radio-checkmark {
-      display: block;
-    }
-
-    .sa-radio-container .sa-radio-label {
-      margin-left: 26px;
-    }
-
-    /* Checkbox */
-    .sa-checkbox-container {
-      display: block;
-      position: relative;
-      padding-left: 12px;
-      margin-bottom: 12px;
-      cursor: pointer;
-      font-size: 16px;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-    }
-
-    /* Hide the browser's default checkbox button */
-    .sa-checkbox-container input {
-      position: absolute;
-      opacity: 0;
-      cursor: pointer;
-    }
-
-    .sa-checkbox-container label {
-      cursor: pointer;
-    }
-
-    /* Create a custom checkbox button */
-    .sa-checkbox {
-      position: absolute;
-      width: 16px;
-      height: 16px;
-      border: 2px solid #777777;
-      border-radius: 25%;
-      cursor: pointer;
-    }
-
-    .sa-checkbox-checkmark {
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 12px;
-      height: 12px;
-      border-radius: 25%;
-    }
-
-    .sa-checkbox-checkmark {
-      content: '';
-      position: absolute;
-      display: none;
-    }
-
-    .sa-checkbox-container:hover input:not(:checked)~.sa-checkbox>.sa-checkbox-checkmark {
-      content: '';
-      display: block;
-      left: 4px;
-      top: 0px;
-      width: 5px;
-      height: 10px;
-      border: solid #777777;
-      border-width: 0 3px 3px 0;
-      -webkit-transform: rotate(45deg);
-      -ms-transform: rotate(45deg);
-      transform: rotate(45deg);
-    }
-
-    .sa-checkbox-container input:checked~.sa-checkbox>.sa-checkbox-checkmark {
-      display: block;
-      left: 4px;
-      top: 0px;
-      width: 5px;
-      height: 10px;
-      border: solid white;
-      border-width: 0 3px 3px 0;
-      -webkit-transform: rotate(45deg);
-      -ms-transform: rotate(45deg);
-      transform: rotate(45deg);
-    }
-
-    .sa-checkbox-container .sa-checkbox-label {
-      margin-left: 26px;
-    }
-
-    /* Themes */
-    .sa-theme0 {
-      background-color: white;
-    }
-
-    .sa-theme1 {
-      background-color: #E6F9E6;
-      font-family: Helvetica;
-    }
-
-    .sa-theme2 {
-      background-color: #F3F3F3;
-      font-family: 'Times New Roman';
-    }
-
-    .sa-theme3 {
-      background-color: #ECF3FC;
-      font-family: Verdana;
-    }
-
-    .sa-theme4 {
-      background-color: #686868;
-      font-family: Arial;
-    }
-
-    .sa-theme5 {
-      background-color: #FFF2E5;
-      font-family: 'Courier New';
-      font-size: 16px;
-    }
-
-    .sa-theme6 {
-      background-color: #F3E7FE;
-      font-family: 'Trebuchet MS';
-      font-size: 16px;
-    }
-
-    /* Placeholder Styles */
-    .sa-placeholder-Arial::-webkit-input-placeholder {
-      font-family: Arial;
-    }
-
-    .sa-placeholder-Chalkboard::-webkit-input-placeholder {
-      font-family: Chalkboard;
-    }
-
-    .sa-placeholder-ComicSansMS::-webkit-input-placeholder {
-      font-family: 'Comic Sans MS';
-    }
-
-    .sa-placeholder-CourierNew::-webkit-input-placeholder {
-      font-family: 'Courier New';
-    }
-
-    .sa-placeholder-Georgia::-webkit-input-placeholder {
-      font-family: Georgia;
-    }
-
-    .sa-placeholder-Helvetica::-webkit-input-placeholder {
-      font-family: Helvetica;
-    }
-
-    .sa-placeholder-Impact::-webkit-input-placeholder {
-      font-family: Impact;
-    }
-
-    .sa-placeholder-LucidaSansUnicode::-webkit-input-placeholder {
-      font-family: 'Lucida Sans Unicode';
-    }
-
-    .sa-placeholder-Tahoma::-webkit-input-placeholder {
-      font-family: Tahoma;
-    }
-
-    .sa-placeholder-TimesNewRoman::-webkit-input-placeholder {
-      font-family: 'Times New Roman';
-    }
-
-    .sa-placeholder-TrebuchetMS::-webkit-input-placeholder {
-      font-family: 'Trebuchet MS';
-    }
-
-    .sa-placeholder-Verdana::-webkit-input-placeholder {
-      font-family: Verdana;
-    }
-
-    .sa-placeholder-Arial::-moz-placeholder {
-      font-family: Arial;
-    }
-
-    .sa-placeholder-Chalkboard::-moz-placeholder {
-      font-family: Chalkboard;
-    }
-
-    .sa-placeholder-ComicSansMS::-moz-placeholder {
-      font-family: 'Comic Sans MS';
-    }
-
-    .sa-placeholder-CourierNew::-moz-placeholder {
-      font-family: 'Courier New';
-    }
-
-    .sa-placeholder-Georgia::-moz-placeholder {
-      font-family: Georgia;
-    }
-
-    .sa-placeholder-Helvetica::-moz-placeholder {
-      font-family: Helvetica;
-    }
-
-    .sa-placeholder-Impact::-moz-placeholder {
-      font-family: Impact;
-    }
-
-    .sa-placeholder-LucidaSansUnicode::-moz-placeholder {
-      font-family: 'Lucida Sans Unicode';
-    }
-
-    .sa-placeholder-Tahoma::-moz-placeholder {
-      font-family: Tahoma;
-    }
-
-    .sa-placeholder-TimesNewRoman::-moz-placeholder {
-      font-family: 'Times New Roman';
-    }
-
-    .sa-placeholder-TrebuchetMS::-moz-placeholder {
-      font-family: 'Trebuchet MS';
-    }
-
-    .sa-placeholder-Verdana::-moz-placeholder {
-      font-family: Verdana;
-    }
-
-    .sa-placeholder-italic::-webkit-input-placeholder {
-      font-style: italic;
-    }
-
-    .sa-placeholder-bold::-webkit-input-placeholder {
-      font-weight: bold
-    }
-
-    .sa-placeholder-underlined::-webkit-input-placeholder {
-      text-decoration: underline;
-    }
-
-    .sa-placeholder-italic::-moz-placeholder {
-      font-style: italic;
-    }
-
-    .sa-placeholder-bold::-moz-placeholder {
-      font-weight: bold
-    }
-
-    .sa-placeholder-underlined::-moz-placeholder {
-      text-decoration: underline;
-    }
-
-    .sa-form-divider {
-      padding: 8px 0;
-    }
-
-    .sa-form-video {
-      width: 420px;
-      height: 315px;
-    }
-
-    .sa-form-video-container {
-      width: 420px;
-      text-align: center;
-    }
-
-    .sa-formRating .sa-formRating--Container {
-      background-color: #ffffff;
-      border-top: solid 1px #9e9e9e;
-      border-bottom: solid 1px #9e9e9e;
-      border-right: solid 1px #9e9e9e;
-      border-left: solid 1px #9e9e9e;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-around;
-    }
-
-    .sa-invalid-rating .sa-formRating .sa-formRating--Container {
-      border: 1px solid red;
-    }
-
-    .sa-formRating .sa-formRating--Container:not(:checked)>input {
-      display: none;
-    }
-
-    .sa-formRating .sa-formRating--Container .sa-formRating--Container-Link {
-      padding: 16px 10px 10px 10px;
-      height: 26px;
-      width: 50px;
-      text-align: center;
-      cursor: pointer;
-    }
-
-    .sa-chooseFile {
-      white-space: nowrap;
-      text-align: center;
-      cursor: pointer;
-      padding: 10px 20px;
-      background-color: #E1E1E1;
-      color: #1e1e1e;
-      border-radius: 6px;
-      border: none;
-      margin-bottom: 25px;
-      line-height: inherit;
-      font-size: 16px;
-    }
-
-    .sa-chooseFile:hover {
-      background-color: #d1d1d1;
-      color: #1e1e1e;
-      border: none;
-    }
-
-    .sa-fileDiv {
-      padding-top: 15px;
-    }
-
-    .sa-uploadedFileContainer {
-      margin: 25px 0;
-    }
-
-    .sa-uploadedFile {
-      border: 1px solid #C3C3C3;
-      border-radius: 6px;
-      box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.3), 0 2px 2px 0 rgba(0, 0, 0, 0.3);
-      padding: 10px;
-      margin: 10px 0;
-    }
-
-    .sa-uploadedFile .sa-uploadedFile--Remove {
-      justify-content: flex-end;
-      color: #D0021B;
-      cursor: pointer;
-      align-self: center;
-    }
-
-    .sa-uploadedFile .sa-uploadedFile--FileName {
-      padding-left: 10px;
-    }
-
-    .sa-uploadedFile .sa-uploadedFile--Size {
-      font-size: 12px;
-    }
-
-    .sa-loadingSpinner {
-      border: 3px solid #f3f3f3;
-      border-radius: 50%;
-      border-top: 3px solid #3498db;
-      width: 10px;
-      height: 10px;
-      animation: sa-loadingSpinner 2s linear infinite;
-    }
-
-    .sa-loadingSpinner.sa-loadingSpinner-GridRow {
-      width: 12px;
-      height: 12px;
-    }
-
-    .sa-loadingSpinner.sa-loadingSpinner-Inline {
-      margin-right: 5px;
-    }
-
-    .sa-loadingSpinner.sa-loadingSpinner-ActivityTimeline {
-      width: 12px;
-      height: 12px;
-      margin-right: 6px;
-    }
-
-    @-webkit-keyframes sa-loadingSpinner {
-      0% {
-        -webkit-transform: rotate(0deg);
-      }
-
-      100% {
-        -webkit-transform: rotate(360deg);
-      }
-    }
-
-    @-moz-keyframes sa-loadingSpinner {
-      0% {
-        -webkit-transform: rotate(0deg);
-      }
-
-      100% {
-        -webkit-transform: rotate(360deg);
-      }
-    }
-
-    @keyframes sa-loadingSpinner {
-      0% {
-        -webkit-transform: rotate(0deg);
-      }
-
-      100% {
-        -webkit-transform: rotate(360deg);
-      }
-    }
-
-    .l-SA-FormRating {
-      display: flex;
-      flex-direction: row;
-      flex: 0 0 98%;
-      flex-wrap: wrap;
-    }
-
-    .l-SA-UploadFile {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .l-SA-FileName {
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-start;
-      align-items: center;
-    }
-
-    .sa-ico-CircleCheck {
-      background-repeat: no-repeat;
-      background-position: center center;
-      display: inline-block;
-      vertical-align: middle;
-      width: 24px;
-      height: 24px;
-      background-size: 24px 24px;
-      background-image: url(https://my.serviceautopilot.com/v3-images/CircleCheck.svg);
-      filter: brightness(0) saturate(100%) invert(43%) sepia(100%) saturate(421%) hue-rotate(97deg) brightness(97%) contrast(93%);
-    }
-
-    .sa-ico-Trashcan {
-      background-repeat: no-repeat;
-      background-position: center center;
-      display: inline-block;
-      vertical-align: middle;
-      width: 24px;
-      height: 24px;
-      background-size: 24px 24px;
-      background-image: url(https://my.serviceautopilot.com/v3-images/Trashcan.svg);
-      filter: invert(9%) sepia(97%) saturate(6260%) hue-rotate(349deg) brightness(90%) contrast(102%);
-      /*red*/
-    }
-
-    .sa-ico-Failed {
-      background-repeat: no-repeat;
-      background-position: center center;
-      display: inline-block;
-      vertical-align: middle;
-      width: 24px;
-      height: 24px;
-      background-size: 24px 24px;
-      background-image: url(https://my.serviceautopilot.com/v3-images/void.svg);
-      filter: invert(9%) sepia(97%) saturate(6260%) hue-rotate(349deg) brightness(90%) contrast(102%);
-      /*red*/
-    }
-
-    .sa-ico-Processing {
-      background-repeat: no-repeat;
-      background-position: center center;
-      display: inline-block;
-      vertical-align: middle;
-      width: 24px;
-      height: 24px;
-      background-size: 24px 24px;
-      background-image: url(https://my.serviceautopilot.com/v3-images/Processing.svg);
-      animation-name: rotateCounterClockwise;
-      animation-duration: 1.4s;
-      animation-iteration-count: infinite;
-      animation-timing-function: linear;
-    }
-
-    @keyframes rotateCounterClockwise {
-      0% {
-        transform: rotate(0deg);
-      }
-
-      100% {
-        transform: rotate(-360deg);
-      }
-    }
-
-    @media only screen and (max-width: 767.98px) {
-      .sa-form-video {
-        width: 100%;
-        height: 245px;
-      }
-
-      .sa-input-wrapper {
-        width: 100% !important;
-      }
-    }
-
-    .sa-form-confirmation-message,
-    .sa-submission-progress-box {
-      box-shadow: 0 0 2px rgba(0, 0, 0, 0.4);
-      border-radius: 4px;
-      margin: 10px auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-    }
-
-    .sa-submission-progress-box {
-      width: calc(100vw - 40px);
-      max-width: calc(100% - 40px);
-    }
-
-    .sa-form-confirmation-message {
-      background-color: rgb(255, 255, 255);
-    }
-
-    .sa-submission-progress-container {
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 99999;
-      background-color: rgba(1, 1, 1, 0.25);
-      width: 100%;
-      height: 100%;
-    }
-
-    .sa-form-confirmation-message img {
-      width: 100px;
-      height: 100px;
-    }
-
-    .sa-form-confirmation-message .sa-form-confirmation-message-content,
-    .sa-submission-progress-box .sa-submission-progress-message {
-      padding: 20px;
-      line-height: 1.5em;
-      max-height: 90vh;
-      overflow: auto;
-    }
-
-    @keyframes sa-ellipses-slide-1 {
-      0% {
-        transform: translateX(32px);
-      }
-
-      10% {
-        transform: translateX(32px);
-      }
-
-      50% {
-        transform: translateX(80px);
-      }
-
-      90% {
-        transform: translateX(128px);
-      }
-
-      100% {
-        transform: translateX(128px);
-      }
-    }
-
-    @keyframes sa-ellipses-slide-2 {
-      0% {
-        transform: translateX(80px);
-      }
-
-      10% {
-        transform: translateX(80px);
-      }
-
-      50% {
-        transform: translateX(128px);
-      }
-
-      90% {
-        transform: translateX(32px);
-      }
-
-      100% {
-        transform: translateX(32px);
-      }
-    }
-
-    @keyframes sa-ellipses-slide-3 {
-      0% {
-        transform: translateX(128px);
-      }
-
-      10% {
-        transform: translateX(128px);
-      }
-
-      50% {
-        transform: translateX(32px);
-      }
-
-      90% {
-        transform: translateX(80px);
-      }
-
-      100% {
-        transform: translateX(80px);
-      }
-    }
-
-    .sa-ellipses {
-      margin-left: -24px;
-      width: 160px;
-    }
-
-    .sa-ellipses div {
-      position: absolute;
-      transform: translateX(32px) scale(1);
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      margin-right: 12px;
-      background-color: white;
-      border: 1px solid #1e1e1e;
-    }
-
-    .sa-ellipses div:nth-child(1) {
-      animation: sa-ellipses-slide-1 1s infinite cubic-bezier(0, 0.5, 0.5, 1);
-    }
-
-    .sa-ellipses div:nth-child(2) {
-      animation: sa-ellipses-slide-2 1s infinite cubic-bezier(0, 0.5, 0.5, 1);
-    }
-
-    .sa-ellipses div:nth-child(3) {
-      animation: sa-ellipses-slide-3 1s infinite cubic-bezier(0, 0.5, 0.5, 1);
-    }
-  </style>
-  <style></style>
-</head>
-
-<body>
-  <div class="sa-form">
-    <div data-index="1" class="sa-form-page" style="display:block">
-      <div data-page="1" data-field="1" class="sa-form-field" style="font-size:30px"><span
-          style="color: rgb(65, 168, 95);"><strong>Arbor Care Lawn & Pest Control Inc</strong></span></div>
-      <div data-page="1" data-field="2" class="sa-form-field" style="font-size:30px"><span
-          style="color: rgb(0, 0, 0);">Please take a few minutes to tell us about yourself</span></div>
-      <div id="sa-txt-5eada789-7bea-4286-ac1a-62c4f8a0d032" data-fieldType="shortText" required="" data-page="1"
-        data-field="3" class="sa-form-field">
-        <p class="sa-required"><span style="font-family: Helvetica;"><span style="color: rgb(0, 0, 0);"><strong><span
-                  style="font-size: 18px;">First Name</span></strong></span></span></p>
-        <div class="sa-input-wrapper" style="width:20%"><input id="sa-txt-5eada789-7bea-4286-ac1a-62c4f8a0d032-input"
-            type="text" value="" required="" data-limit="100" class="sa-input sa-text" style="width:100%"><label
-            for="sa-txt-5eada789-7bea-4286-ac1a-62c4f8a0d032-input" class="sa-character-counter"
-            style="display:none">0/100</label></div>
-      </div>
-      <div id="sa-txt-22f49c06-6bc0-4f0a-9c0f-fd66225f6199" data-fieldType="shortText" required="" data-page="1"
-        data-field="4" class="sa-form-field">
-        <p class="sa-required"><strong><span style="color: rgb(0, 0, 0);"><span
-                style="font-family: Helvetica; font-size: 18px;">Last Name</span></span></strong></p>
-        <div class="sa-input-wrapper" style="width:20%"><input id="sa-txt-22f49c06-6bc0-4f0a-9c0f-fd66225f6199-input"
-            type="text" value="" required="" data-limit="100" class="sa-input sa-text" style="width:100%"><label
-            for="sa-txt-22f49c06-6bc0-4f0a-9c0f-fd66225f6199-input" class="sa-character-counter"
-            style="display:none">0/100</label></div>
-      </div>
-      <div data-page="1" data-field="5" class="sa-form-field" style="font-size:30px"><span
-          style="color:"><strong>Service Address</strong></span></div>
-      <div id="sa-txt-4005ec99-1731-490e-a343-63dc1cb01bc4" data-fieldType="shortText" data-page="1" data-field="6"
-        class="sa-form-field">
-        <p><span style="color:rgb(31, 31, 31);"><strong>Address Line 1</strong></span></p>
-        <div class="sa-input-wrapper" style="width:30%"><input id="sa-txt-4005ec99-1731-490e-a343-63dc1cb01bc4-input"
-            type="text" value="" data-limit="500" class="sa-input sa-text" style="width:100%"><label
-            for="sa-txt-4005ec99-1731-490e-a343-63dc1cb01bc4-input" class="sa-character-counter"
-            style="display:none">0/500</label></div>
-      </div>
-      <div id="sa-txt-642e43ce-20b4-4af1-8f07-e8442d8dbea3" data-fieldType="shortText" data-page="1" data-field="7"
-        class="sa-form-field">
-        <p><span style="color:rgb(31, 31, 31);"><strong>Address Line 2</strong></span></p>
-        <div class="sa-input-wrapper" style="width:30%"><input id="sa-txt-642e43ce-20b4-4af1-8f07-e8442d8dbea3-input"
-            type="text" value="" data-limit="500" class="sa-input sa-text" style="width:100%"><label
-            for="sa-txt-642e43ce-20b4-4af1-8f07-e8442d8dbea3-input" class="sa-character-counter"
-            style="display:none">0/500</label></div>
-      </div>
-      <div id="sa-txt-4218ac31-aa3a-4f0b-9c2a-7de332272ffa" data-fieldType="shortText" data-page="1" data-field="8"
-        class="sa-form-field">
-        <p><span style="color:rgb(31, 31, 31);"><strong>City</strong></span></p>
-        <div class="sa-input-wrapper" style="width:30%"><input id="sa-txt-4218ac31-aa3a-4f0b-9c2a-7de332272ffa-input"
-            type="text" value="" data-limit="255" class="sa-input sa-text" style="width:100%"><label
-            for="sa-txt-4218ac31-aa3a-4f0b-9c2a-7de332272ffa-input" class="sa-character-counter"
-            style="display:none">0/255</label></div>
-      </div>
-      <div data-fieldType="dropdown" data-page="1" data-field="9" class="sa-form-field">
-        <p><span style="color:rgb(31, 31, 31);"><strong>State</strong></span></p><select
-          id="sa-dd-6355f975-7f54-4008-a9c6-964cca46e508" class="sa-input sa-text sa-dropdown sa-input-wrapper"
-          style="width:30%">
-          <option value="-1" disabled="" hidden="" selected=""></option>
-          <option data-value="341458a9-0e01-4fa0-a77d-9495bbc5cbaa" value="341458a9-0e01-4fa0-a77d-9495bbc5cbaa">Alaska
-          </option>
-          <option data-value="f995b31c-6d0d-4b45-88f0-0eb8ad8b7d9d" value="f995b31c-6d0d-4b45-88f0-0eb8ad8b7d9d">
-            California</option>
-          <option data-value="85388e2c-3082-42a4-964e-708cc06eb03e" value="85388e2c-3082-42a4-964e-708cc06eb03e">Florida
-          </option>
-          <option data-value="b4030144-aa89-4465-8aed-542964dc0aee" value="b4030144-aa89-4465-8aed-542964dc0aee">Montana
-          </option>
-          <option data-value="56c6b5fd-e541-4471-a43b-b902f773968e" value="56c6b5fd-e541-4471-a43b-b902f773968e">Nevada
-          </option>
-          <option data-value="b7eb20fd-c785-4b30-bd70-29d1c3789676" value="b7eb20fd-c785-4b30-bd70-29d1c3789676">North
-            Carolina</option>
-          <option data-value="93a2dfad-8c45-4321-8dae-288498e65bc5" value="93a2dfad-8c45-4321-8dae-288498e65bc5">Oregon
-          </option>
-          <option data-value="bf76df4e-eeef-4051-b415-e08b09789367" value="bf76df4e-eeef-4051-b415-e08b09789367">South
-            Dakota</option>
-          <option data-value="4d89588a-20f8-4bb6-a749-1a2d77746f99" value="4d89588a-20f8-4bb6-a749-1a2d77746f99">Utah
-          </option>
-          <option data-value="477383ea-296f-4be9-9822-8934ffce28c7" value="477383ea-296f-4be9-9822-8934ffce28c7">
-            Virginia</option>
-          <option data-value="2afade12-6395-4389-b2f2-e3c4f706dd30" value="2afade12-6395-4389-b2f2-e3c4f706dd30">
-            Washington</option>
-        </select>
-      </div>
-      <div id="sa-txt-2618e339-070e-403f-bb53-c0ccab68dcfd" data-fieldType="shortText" data-page="1" data-field="10"
-        class="sa-form-field">
-        <p><span style="color:rgb(31, 31, 31);"><strong>Postal Code</strong></span></p>
-        <div class="sa-input-wrapper" style="width:30%"><input id="sa-txt-2618e339-070e-403f-bb53-c0ccab68dcfd-input"
-            type="text" value="" data-limit="31" class="sa-input sa-text" style="width:100%"><label
-            for="sa-txt-2618e339-070e-403f-bb53-c0ccab68dcfd-input" class="sa-character-counter"
-            style="display:none">0/31</label></div>
-      </div>
-      <div data-page="1" data-field="22" class="sa-form-field" style="font-size:30px"><strong>Contact</strong></div>
-      <div id="sa-email-66ef3a7e-605c-4e94-abdf-643584848c1d" data-fieldType="email" data-page="1" data-field="18"
-        class="sa-form-field">
-        <p><span style="color:rgb(31, 31, 31);"><strong>Contact Email</strong></span></p>
-        <div class="sa-input-wrapper" style="width:30%"><input id="sa-email-66ef3a7e-605c-4e94-abdf-643584848c1d-input"
-            type="email" pattern="[a-z0-9._%&#x2B;-]&#x2B;@[a-z0-9.-]&#x2B;\.[a-z]{2,3}$" value="" data-limit="100"
-            class="sa-input sa-text" style="width:100%"><label for="sa-email-66ef3a7e-605c-4e94-abdf-643584848c1d-input"
-            class="sa-character-counter" style="display:none">0/100</label></div>
-      </div>
-      <div id="sa-txt-cc442d5f-3f65-4b2d-8992-a3e680d4e161" data-fieldType="shortText" data-page="1" data-field="19"
-        class="sa-form-field">
-        <p><span style="color:rgb(31, 31, 31);"><strong>Phone</strong></span></p>
-        <div class="sa-input-wrapper" style="width:30%"><input id="sa-txt-cc442d5f-3f65-4b2d-8992-a3e680d4e161-input"
-            type="text" value="" placeholder="###-###-####" class="sa-input sa-text sa-placeholder-Lato-Regular"
-            style="width:100%"></div>
-      </div>
-      <div data-page="1" data-field="27" style="padding:0px 0px 0px 0px">
-        <div class="sa-form-field sa-form-divider"
-          style="border-bottom-style:solid;border-bottom-width:6px;border-bottom-color:#1F1F1F"></div>
-      </div>
-      <div id="sa-txt-90ff38a5-eb85-4e78-9d36-688e5f227e4c" data-fieldType="longText" data-page="1" data-field="29"
-        class="sa-form-field">
-        <p><strong><span style="font-size: 24px;">How can we help?</span></strong></p>
-        <div class="sa-input-wrapper" style="width:60%"><textarea id="sa-txt-90ff38a5-eb85-4e78-9d36-688e5f227e4c-input"
-            rows="4" placeholder="Enter text..." class="sa-input sa-textarea sa-placeholder-Lato-Regular"
-            style="width:100%"></textarea></div>
-      </div>
-      <div data-fieldType="checklist" data-page="1" data-field="30" data-jump-rules="[]" class="sa-form-field">
-        <p><strong><span style="font-size: 24px;">Estimate Request:</span></strong></p>
-        <p><span style="color:rgb(31, 31, 31);;">Please select one or more options below:</span></p>
-        <div id="sa-CL-35a3d852-1602-44f0-b9eb-b10e1b64e458" class="sa-input-wrapper" style="width:60%">
-          <style>
-            #sa-CL-35a3d852-1602-44f0-b9eb-b10e1b64e458 .sa-checkbox-container input:checked~.sa-checkbox {
-              background-color: #007AFF
-            }
-          </style>
-          <div class="sa-checkbox-container"><input type="checkbox" id="cb060269dd-5670-498c-a0bd-1e9c37f52441"
-              value="0" class="sa-checkboxBtn"><label for="cb060269dd-5670-498c-a0bd-1e9c37f52441" data-color="#007AFF"
-              class="sa-checkbox"><span class="sa-checkbox-checkmark"></span></label><label
-              for="cb060269dd-5670-498c-a0bd-1e9c37f52441" class="sa-checkbox-label">Turf Care</label></div>
-          <div class="sa-checkbox-container"><input type="checkbox" id="cbdbed22bd-653a-45e9-8c7d-f0de3a9fe589"
-              value="1" class="sa-checkboxBtn"><label for="cbdbed22bd-653a-45e9-8c7d-f0de3a9fe589" data-color="#007AFF"
-              class="sa-checkbox"><span class="sa-checkbox-checkmark"></span></label><label
-              for="cbdbed22bd-653a-45e9-8c7d-f0de3a9fe589" class="sa-checkbox-label">Pest Control</label></div>
-          <div class="sa-checkbox-container"><input type="checkbox" id="cbe3bfa2cd-9c71-4a33-ae24-1317a5bff283"
-              value="2" class="sa-checkboxBtn"><label for="cbe3bfa2cd-9c71-4a33-ae24-1317a5bff283" data-color="#007AFF"
-              class="sa-checkbox"><span class="sa-checkbox-checkmark"></span></label><label
-              for="cbe3bfa2cd-9c71-4a33-ae24-1317a5bff283" class="sa-checkbox-label">Rodent Control</label></div>
-          <div class="sa-checkbox-container"><input type="checkbox" id="cbd33e98a6-032a-4ec8-8725-df006960529c"
-              value="3" class="sa-checkboxBtn"><label for="cbd33e98a6-032a-4ec8-8725-df006960529c" data-color="#007AFF"
-              class="sa-checkbox"><span class="sa-checkbox-checkmark"></span></label><label
-              for="cbd33e98a6-032a-4ec8-8725-df006960529c" class="sa-checkbox-label">Tree Trimming/ Removal</label>
-          </div>
+<link type="text/css" rel="stylesheet" href="../styles.css" />
+<div class="navbar">This is a test navbar to see if will work with js.</div>
+<div class="sa-form">
+    <div data-index="1" class="sa-form-page">
+        <div id="sa-txt-ca71e485-fb66-40ff-b416-c60eb1e28e5c" data-fieldtype="shortText" required="" data-page="1"
+            data-field="3" class="sa-form-field">
+            <p class="sa-required"><span><span><strong><span>First
+                                Name</span></strong></span></span></p>
+            <div class="sa-input-wrapper"><input id="sa-txt-ca71e485-fb66-40ff-b416-c60eb1e28e5c-input" type="text"
+                    value="" required="" data-limit="100" class="sa-input sa-text"><label
+                    for="sa-txt-ca71e485-fb66-40ff-b416-c60eb1e28e5c-input" class="sa-character-counter"
+                    style="display:none">0/100</label></div>
         </div>
-      </div>
-      <div class="sa-form-page-nav"><span id="sa-form-submit" class="sa-form-page-submit"
-          style="height:30px;line-height:30px;background-color:#3055a1;color:#ffffff;border-radius:4px"><strong><span
-              style="font-family: Helvetica;">SUBMIT!</span></strong></span></div>
+        <div id="sa-txt-b0541621-ae62-400b-b5ad-1fb2c75fd48f" data-fieldtype="shortText" required="" data-page="1"
+            data-field="4" class="sa-form-field">
+            <p class="sa-required"><strong><span><span>Last
+                            Name</span></span></strong></p>
+            <div class="sa-input-wrapper"><input id="sa-txt-b0541621-ae62-400b-b5ad-1fb2c75fd48f-input" type="text"
+                    value="" required="" data-limit="100" class="sa-input sa-text"><label
+                    for="sa-txt-b0541621-ae62-400b-b5ad-1fb2c75fd48f-input" class="sa-character-counter"
+                    style="display:none">0/100</label></div>
+        </div>
+        <div data-page="1" data-field="5" class="sa-form-field">
+            <span><strong>Service Address</strong></span>
+        </div>
+        <div id="sa-txt-6a30f342-8914-4488-a420-ae7e23adc56f" data-fieldtype="shortText" data-page="1" data-field="6"
+            class="sa-form-field">
+            <p><span><strong>Address Line 1</strong></span></p>
+            <div class="sa-input-wrapper"><input id="sa-txt-6a30f342-8914-4488-a420-ae7e23adc56f-input" type="text"
+                    value="" data-limit="500" class="sa-input sa-text"><label
+                    for="sa-txt-6a30f342-8914-4488-a420-ae7e23adc56f-input" class="sa-character-counter"
+                    style="display:none">0/500</label></div>
+        </div>
+        <div id="sa-txt-eb87c036-0e2e-495e-ba74-e8e7770b3500" data-fieldtype="shortText" data-page="1" data-field="7"
+            class="sa-form-field">
+            <p><span><strong>Address Line 2</strong></span></p>
+            <div class="sa-input-wrapper"><input id="sa-txt-eb87c036-0e2e-495e-ba74-e8e7770b3500-input" type="text"
+                    value="" data-limit="500" class="sa-input sa-text"><label
+                    for="sa-txt-eb87c036-0e2e-495e-ba74-e8e7770b3500-input" class="sa-character-counter"
+                    style="display:none">0/500</label></div>
+        </div>
+        <div id="sa-txt-c028ce5e-f528-44e6-9f71-f88d97dbab05" data-fieldtype="shortText" data-page="1" data-field="8"
+            class="sa-form-field">
+            <p><span><strong>City</strong></span></p>
+            <div class="sa-input-wrapper"><input id="sa-txt-c028ce5e-f528-44e6-9f71-f88d97dbab05-input" type="text"
+                    value="" data-limit="255" class="sa-input sa-text"><label
+                    for="sa-txt-c028ce5e-f528-44e6-9f71-f88d97dbab05-input" class="sa-character-counter"
+                    style="display:none">0/255</label></div>
+        </div>
+        <div data-fieldtype="dropdown" data-page="1" data-field="9" class="sa-form-field">
+            <p><span><strong>State</strong></span></p><select id="sa-dd-09288694-02ca-4c8e-aa96-a819e64eaff4"
+                class="sa-input sa-text sa-dropdown sa-input-wrapper">
+                <option value="-1" disabled="" hidden="" selected=""></option>
+                <option data-value="341458a9-0e01-4fa0-a77d-9495bbc5cbaa" value="341458a9-0e01-4fa0-a77d-9495bbc5cbaa">
+                    Alaska</option>
+                <option data-value="f995b31c-6d0d-4b45-88f0-0eb8ad8b7d9d" value="f995b31c-6d0d-4b45-88f0-0eb8ad8b7d9d">
+                    California</option>
+                <option data-value="85388e2c-3082-42a4-964e-708cc06eb03e" value="85388e2c-3082-42a4-964e-708cc06eb03e">
+                    Florida</option>
+                <option data-value="b4030144-aa89-4465-8aed-542964dc0aee" value="b4030144-aa89-4465-8aed-542964dc0aee">
+                    Montana</option>
+                <option data-value="56c6b5fd-e541-4471-a43b-b902f773968e" value="56c6b5fd-e541-4471-a43b-b902f773968e">
+                    Nevada</option>
+                <option data-value="b7eb20fd-c785-4b30-bd70-29d1c3789676" value="b7eb20fd-c785-4b30-bd70-29d1c3789676">
+                    North Carolina</option>
+                <option data-value="93a2dfad-8c45-4321-8dae-288498e65bc5" value="93a2dfad-8c45-4321-8dae-288498e65bc5">
+                    Oregon</option>
+                <option data-value="bf76df4e-eeef-4051-b415-e08b09789367" value="bf76df4e-eeef-4051-b415-e08b09789367">
+                    South Dakota</option>
+                <option data-value="4d89588a-20f8-4bb6-a749-1a2d77746f99" value="4d89588a-20f8-4bb6-a749-1a2d77746f99">
+                    Utah</option>
+                <option data-value="477383ea-296f-4be9-9822-8934ffce28c7" value="477383ea-296f-4be9-9822-8934ffce28c7">
+                    Virginia</option>
+                <option data-value="2afade12-6395-4389-b2f2-e3c4f706dd30" value="2afade12-6395-4389-b2f2-e3c4f706dd30">
+                    Washington</option>
+            </select>
+        </div>
+        <div id="sa-txt-0fa81649-6209-4cf8-a7f1-02b0d5cc80e4" data-fieldtype="shortText" data-page="1" data-field="10"
+            class="sa-form-field">
+            <p><span><strong>Postal Code</strong></span></p>
+            <div class="sa-input-wrapper"><input id="sa-txt-0fa81649-6209-4cf8-a7f1-02b0d5cc80e4-input" type="text"
+                    value="" data-limit="31" class="sa-input sa-text"><label
+                    for="sa-txt-0fa81649-6209-4cf8-a7f1-02b0d5cc80e4-input" class="sa-character-counter"
+                    style="display:none">0/31</label></div>
+        </div>
+        <div data-page="1" data-field="22" class="sa-form-field"><strong>Contact</strong></div>
+        <div id="sa-email-f58456fa-c8ac-4af7-9639-deac3a8cb14d" data-fieldtype="email" data-page="1" data-field="18"
+            class="sa-form-field">
+            <p><span><strong>Contact Email</strong></span></p>
+            <div class="sa-input-wrapper"><input id="sa-email-f58456fa-c8ac-4af7-9639-deac3a8cb14d-input" type="email"
+                    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$" value="" data-limit="100"
+                    class="sa-input sa-text"><label for="sa-email-f58456fa-c8ac-4af7-9639-deac3a8cb14d-input"
+                    class="sa-character-counter" style="display:none">0/100</label></div>
+        </div>
+        <div id="sa-txt-7cd5bfb2-c278-4938-834e-6d62f89d09eb" data-fieldtype="shortText" data-page="1" data-field="19"
+            class="sa-form-field">
+            <p><span><strong>Phone</strong></span></p>
+            <div class="sa-input-wrapper"><input id="sa-txt-7cd5bfb2-c278-4938-834e-6d62f89d09eb-input" type="text"
+                    value="" placeholder="###-###-####" class="sa-input sa-text sa-placeholder-Lato-Regular">
+            </div>
+        </div>
+        <div data-page="1" data-field="27">
+            <div class="sa-form-field sa-form-divider"></div>
+        </div>
+        <div id="sa-txt-048aa75d-8267-488f-84b4-45d852ba546e" data-fieldtype="longText" data-page="1" data-field="29"
+            class="sa-form-field">
+            <p><strong><span>How can we help?</span></strong></p>
+            <div class="sa-input-wrapper"><textarea id="sa-txt-048aa75d-8267-488f-84b4-45d852ba546e-input" rows="4"
+                    placeholder="Enter text..." class="sa-input sa-textarea sa-placeholder-Lato-Regular"></textarea>
+            </div>
+        </div>
+        <div data-fieldtype="checklist" data-page="1" data-field="30" data-jump-rules="[]" class="sa-form-field">
+            <p><strong><span>Estimate Request:</span></strong></p>
+            <p><span>Please select one or more options below:</span></p>
+            <div id="sa-CL-4cb2284a-deba-4e66-80a0-451ad9811ee6" class="sa-input-wrapper">
+                <div class="sa-checkbox-container">
+                    <input type="checkbox" id="cb42e3a59d-0088-40cf-ab61-42784f598327" value="0"
+                        class="sa-checkboxBtn"><label for="cb42e3a59d-0088-40cf-ab61-42784f598327" data-color="#007AFF"
+                        class="sa-checkbox"><span class="sa-checkbox-checkmark"></span></label><label
+                        for="cb42e3a59d-0088-40cf-ab61-42784f598327" class="sa-checkbox-label">Turf Care</label>
+                </div>
+                <div class="sa-checkbox-container"><input type="checkbox" id="cbd4ea41a1-0a72-4b82-a063-8eeddf477f98"
+                        value="1" class="sa-checkboxBtn"><label for="cbd4ea41a1-0a72-4b82-a063-8eeddf477f98"
+                        data-color="#007AFF" class="sa-checkbox"><span
+                            class="sa-checkbox-checkmark"></span></label><label
+                        for="cbd4ea41a1-0a72-4b82-a063-8eeddf477f98" class="sa-checkbox-label">Pest Control</label>
+                </div>
+                <div class="sa-checkbox-container"><input type="checkbox" id="cb0f7b4e28-9610-42c4-bba6-a6db0e33472f"
+                        value="2" class="sa-checkboxBtn"><label for="cb0f7b4e28-9610-42c4-bba6-a6db0e33472f"
+                        data-color="#007AFF" class="sa-checkbox"><span
+                            class="sa-checkbox-checkmark"></span></label><label
+                        for="cb0f7b4e28-9610-42c4-bba6-a6db0e33472f" class="sa-checkbox-label">Rodent Control</label>
+                </div>
+                <div class="sa-checkbox-container"><input type="checkbox" id="cbe423b419-d0ee-4b0e-a5b7-311f205253ac"
+                        value="3" class="sa-checkboxBtn"><label for="cbe423b419-d0ee-4b0e-a5b7-311f205253ac"
+                        data-color="#007AFF" class="sa-checkbox"><span
+                            class="sa-checkbox-checkmark"></span></label><label
+                        for="cbe423b419-d0ee-4b0e-a5b7-311f205253ac" class="sa-checkbox-label">Tree Trimming/
+                        Removal</label></div>
+            </div>
+        </div>
+        <div class="sa-form-page-nav">
+            <span id="sa-form-submit" class="sa-form-page-submit"><strong><span>SUBMIT!</span></strong></span>
+        </div>
     </div>
     <div id="sa-submission-progress-container" class="sa-submission-progress-container" style="display:none">
-      <div class="sa-submission-progress-box sa-theme0">
-        <h1 class="sa-submission-progress-title">Submitting Form</h1>
-        <div class="sa-ellipses">
-          <div></div>
-          <div></div>
-          <div></div>
+        <div class="sa-submission-progress-box sa-theme0">
+            <h1 class="sa-submission-progress-title">Submitting Form</h1>
+            <div class="sa-ellipses">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+            <p class="sa-submission-progress-message">Wait while we submit your form.</p>
         </div>
-        <p class="sa-submission-progress-message">Wait while we submit your form.</p>
-      </div>
     </div>
-  </div>
-  <div id="sa-form-confirmation" class="sa-form-page" style="display:none">
-    <div class="sa-form-confirmation-message">
-      <div class="sa-form-confirmation-message-content"><span style=font-size: 16px; color: rgb(0, 0, 0);><span
-            style=font-family: Helvetica;>Thank you for reaching out to the Arbor Care Team we will be in touch with you
-            as soon as we can!</span></span><br><span style=color: rgb(0, 122, 255);><br></span><span style=font-size:
-          16px; color: rgb(0, 122, 255);><span style=font-family: Helvetica;><a href=http://www.facebook.com/arborcarewa
-              rel=noopener noreferrer target=_blank><strong>Like us on Facebook!</strong></a></span></span></div>
-    </div>
-  </div>
-</body>
+</div>
 
-</html>
+<div id="sa-form-confirmation" class="sa-form-page" style="display:none">
+    <div class="sa-form-confirmation-message">
+        <div class="sa-form-confirmation-message-content"><span><span>Thank you for reaching out to Arbor
+                    Care!</span></span><br><span><br></span><span><span><a href=http://www.facebook.com/arborcarewa
+                        rel=noopener noreferrer target=_blank><strong>Like us
+                            on Facebook!</strong></a></span></span></div>
+    </div>
+
+    <script src="../src.js"></script>
